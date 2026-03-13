@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Lookup word serendipity",
+      "method": "POST",
+      "path": "/",
+      "body": {"word": "serendipity"},
+      "expectedStatus": 200,
+      "expectedBody": {"transcription": "string", "translation": "string"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Empty word returns 400",
+      "method": "POST",
+      "path": "/",
+      "body": {"word": ""},
+      "expectedStatus": 400
+    }
+  ]
+}

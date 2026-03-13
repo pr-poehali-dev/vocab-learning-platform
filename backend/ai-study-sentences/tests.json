@@ -1,0 +1,35 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Generate 3 sentences for one word",
+      "method": "POST",
+      "path": "/",
+      "body": {"words": ["resilience"], "count": 3},
+      "expectedStatus": 200,
+      "expectedBody": {"sentences": []},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Generate sentences for multiple words",
+      "method": "POST",
+      "path": "/",
+      "body": {"words": ["resilience", "ambiguous"], "count": 2},
+      "expectedStatus": 200,
+      "expectedBody": {"words": [], "sentences": []},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Empty words returns 400",
+      "method": "POST",
+      "path": "/",
+      "body": {"words": []},
+      "expectedStatus": 400
+    }
+  ]
+}
