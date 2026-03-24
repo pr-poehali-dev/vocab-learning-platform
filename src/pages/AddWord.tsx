@@ -3,42 +3,13 @@ import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import Icon from '@/components/ui/icon';
 
-const AI_WORD_LOOKUP_URL = 'https://functions.poehali.dev/5c439dc4-74e9-4087-997a-053dc6bbad2c';
-
 export default function AddWord() {
   const [form, setForm] = useState({ word: '', transcription: '', translation: '' });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiError, setAiError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleAiLookup = async () => {
-    const word = form.word.trim();
-    if (!word) return;
-    setAiLoading(true);
-    setAiError('');
-    try {
-      const res = await fetch(AI_WORD_LOOKUP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ word }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'AI error');
-      setForm((prev) => ({
-        ...prev,
-        transcription: data.transcription || prev.transcription,
-        translation: data.translation || prev.translation,
-      }));
-    } catch {
-      setAiError('Не удалось получить данные. Заполните вручную.');
-    } finally {
-      setAiLoading(false);
-    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -48,13 +19,12 @@ export default function AddWord() {
     setTimeout(() => {
       setLoading(false);
       setSubmitted(true);
-    }, 600);
+    }, 800);
   };
 
   const handleReset = () => {
     setForm({ word: '', transcription: '', translation: '' });
     setSubmitted(false);
-    setAiError('');
   };
 
   return (
@@ -103,97 +73,54 @@ export default function AddWord() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5 animate-fade-in-up stagger-1">
             <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
-              {/* Word field + AI button */}
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-foreground/80 flex items-center gap-1.5">
                   <Icon name="Type" size={13} className="text-primary" />
                   English Word
                   <span className="text-destructive ml-0.5">*</span>
                 </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    name="word"
-                    value={form.word}
-                    onChange={handleChange}
-                    placeholder="e.g. Serendipity"
-                    required
-                    className="flex-1 px-4 py-3 rounded-xl bg-secondary border border-border text-foreground placeholder:text-muted-foreground text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15 transition-all font-display text-base"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAiLookup}
-                    disabled={!form.word.trim() || aiLoading}
-                    title="Автозаполнить транскрипцию и перевод через AI"
-                    className="shrink-0 px-4 py-3 rounded-xl bg-primary/15 border border-primary/30 text-primary font-semibold text-sm hover:bg-primary/25 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 whitespace-nowrap"
-                  >
-                    {aiLoading ? (
-                      <Icon name="Loader2" size={15} className="animate-spin" />
-                    ) : (
-                      <Icon name="Sparkles" size={15} />
-                    )}
-                    <span className="hidden sm:inline">{aiLoading ? 'Searching...' : 'AI Fill'}</span>
-                  </button>
-                </div>
-
-                {/* AI hint */}
-                {!aiError && (
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Icon name="Sparkles" size={11} className="text-primary" />
-                    Type a word and press <span className="text-primary font-medium">AI Fill</span> — transcription and translation will be filled automatically
-                  </p>
-                )}
-                {aiError && (
-                  <p className="text-xs text-destructive flex items-center gap-1">
-                    <Icon name="AlertCircle" size={11} />
-                    {aiError}
-                  </p>
-                )}
+                <input
+                  type="text"
+                  name="word"
+                  value={form.word}
+                  onChange={handleChange}
+                  placeholder="e.g. Serendipity"
+                  required
+                  className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground placeholder:text-muted-foreground text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15 transition-all font-display text-base"
+                />
               </div>
 
-              {/* Transcription */}
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-foreground/80 flex items-center gap-1.5">
                   <Icon name="AudioLines" size={13} className="text-primary" />
                   Transcription
                   <span className="text-muted-foreground text-xs font-normal ml-1">(optional)</span>
                 </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="transcription"
-                    value={form.transcription}
-                    onChange={handleChange}
-                    placeholder="e.g. /ˌser.ənˈdɪp.ɪ.ti/"
-                    className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground placeholder:text-muted-foreground text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15 transition-all font-mono"
-                  />
-                  {aiLoading && (
-                    <div className="absolute inset-0 rounded-xl animate-shimmer pointer-events-none opacity-60" />
-                  )}
-                </div>
+                <input
+                  type="text"
+                  name="transcription"
+                  value={form.transcription}
+                  onChange={handleChange}
+                  placeholder="e.g. /ˌser.ənˈdɪp.ɪ.ti/"
+                  className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground placeholder:text-muted-foreground text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15 transition-all font-mono"
+                />
               </div>
 
-              {/* Translation */}
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-foreground/80 flex items-center gap-1.5">
                   <Icon name="Languages" size={13} className="text-primary" />
                   Translation
                   <span className="text-destructive ml-0.5">*</span>
                 </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="translation"
-                    value={form.translation}
-                    onChange={handleChange}
-                    placeholder="e.g. счастливая случайность"
-                    required
-                    className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground placeholder:text-muted-foreground text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15 transition-all"
-                  />
-                  {aiLoading && (
-                    <div className="absolute inset-0 rounded-xl animate-shimmer pointer-events-none opacity-60" />
-                  )}
-                </div>
+                <input
+                  type="text"
+                  name="translation"
+                  value={form.translation}
+                  onChange={handleChange}
+                  placeholder="e.g. счастливая случайность"
+                  required
+                  className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground placeholder:text-muted-foreground text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15 transition-all"
+                />
               </div>
             </div>
 
